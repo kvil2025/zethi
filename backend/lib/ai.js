@@ -1,9 +1,9 @@
 // ─── Orquestador de IA (el "Cerebro" de Sethi) ──────────────────────────────
 // Construye el system prompt dinámico con las 3 capas del usuario
 // (arquetipo + astrología + numerología) y llama a la API de Anthropic.
-// Requiere Node 18+ (fetch nativo). Configura ANTHROPIC_API_KEY en .env
+// Requiere Node 18+ (fetch nativo). Configura DEEPSEEK_API_KEY en .env
 
-const MODELO = process.env.AI_MODEL || "claude-haiku-4-5";
+const MODELO = process.env.AI_MODEL || "deepseek-chat";
 
 function construirSystemPrompt(perfil) {
   const { nombre, arquetipo, carta, numerologia } = perfil;
@@ -34,26 +34,26 @@ REGLAS:
  * Retorna el texto de respuesta del mentor.
  */
 async function chatConMentor({ perfil, historial, mensaje }) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     // Modo demo sin API key: respuesta simulada para poder probar la UI.
-    return `(Modo demo — configura ANTHROPIC_API_KEY en backend/.env para activar la IA real)\n\nHola ${perfil.nombre}, como ${perfil.arquetipo?.primario?.nombre} con energía de ${perfil.carta?.sol?.signo}, tu pregunta "${mensaje}" toca justo tu zona de crecimiento. Cuando conectes la API, aquí conversarás con tu mentor real.`;
+    return `(Modo demo — configura DEEPSEEK_API_KEY en backend/.env para activar la IA real)\n\nHola ${perfil.nombre}, como ${perfil.arquetipo?.primario?.nombre} con energía de ${perfil.carta?.sol?.signo}, tu pregunta "${mensaje}" toca justo tu zona de crecimiento. Cuando conectes la API, aquí conversarás con tu mentor real.`;
   }
 
   const mensajes = [...(historial || []), { role: "user", content: mensaje }].slice(-20);
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
+      "authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: MODELO,
-      max_tokens: 1024,
-      system: construirSystemPrompt(perfil),
-      messages: mensajes,
+      messages: [
+        { role: "system", content: construirSystemPrompt(perfil) },
+        ...mensajes
+      ]
     }),
   });
 
@@ -62,7 +62,7 @@ async function chatConMentor({ perfil, historial, mensaje }) {
     throw new Error(`Error de la API de IA (${res.status}): ${err}`);
   }
   const data = await res.json();
-  return data.content?.map((b) => b.text || "").join("\n").trim();
+  return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
 module.exports = { chatConMentor, construirSystemPrompt };
