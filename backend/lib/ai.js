@@ -1,9 +1,9 @@
 // ─── Orquestador de IA (el "Cerebro" de Sethi) ──────────────────────────────
 // Construye el system prompt dinámico con las 3 capas del usuario
 // (arquetipo + astrología + numerología) y llama a la API de Anthropic.
-// Requiere Node 18+ (fetch nativo). Configura DEEPSEEK_API_KEY en .env
+// Requiere Node 18+ (fetch nativo). Configura GEMINI_API_KEY en .env
 
-const MODELO = process.env.AI_MODEL || "deepseek-chat";
+const MODELO = process.env.AI_MODEL || "gemini-1.5-flash";
 
 function construirSystemPrompt(perfil) {
   const { nombre, arquetipo, carta, numerologia } = perfil;
@@ -34,26 +34,30 @@ REGLAS:
  * Retorna el texto de respuesta del mentor.
  */
 async function chatConMentor({ perfil, historial, mensaje }) {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     // Modo demo sin API key: respuesta simulada para poder probar la UI.
-    return `(Modo demo — configura DEEPSEEK_API_KEY en backend/.env para activar la IA real)\n\nHola ${perfil.nombre}, como ${perfil.arquetipo?.primario?.nombre} con energía de ${perfil.carta?.sol?.signo}, tu pregunta "${mensaje}" toca justo tu zona de crecimiento. Cuando conectes la API, aquí conversarás con tu mentor real.`;
+    return `(Modo demo — configura GEMINI_API_KEY en backend/.env para activar la IA real)\n\nHola ${perfil.nombre}, como ${perfil.arquetipo?.primario?.nombre} con energía de ${perfil.carta?.sol?.signo}, tu pregunta "${mensaje}" toca justo tu zona de crecimiento. Cuando conectes la API, aquí conversarás con tu mentor real.`;
   }
 
-  const mensajes = [...(historial || []), { role: "user", content: mensaje }].slice(-20);
+  const mensajesPrevios = [...(historial || []), { role: "user", content: mensaje }].slice(-20);
+  
+  // Adaptar el historial al formato de Gemini (user y model)
+  const contents = mensajesPrevios.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
 
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
-      "content-type": "application/json",
-      "authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: MODELO,
-      messages: [
-        { role: "system", content: construirSystemPrompt(perfil) },
-        ...mensajes
-      ]
+      system_instruction: {
+        parts: [{ text: construirSystemPrompt(perfil) }]
+      },
+      contents: contents,
     }),
   });
 
@@ -62,7 +66,7 @@ async function chatConMentor({ perfil, historial, mensaje }) {
     throw new Error(`Error de la API de IA (${res.status}): ${err}`);
   }
   const data = await res.json();
-  return data.choices?.[0]?.message?.content?.trim() || "";
+  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 }
 
 module.exports = { chatConMentor, construirSystemPrompt };
