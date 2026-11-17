@@ -1,6 +1,4 @@
-// Cliente de la API de Sethi.
-// Desarrollo: Vite hace proxy de /api al backend local.
-// Producción: define VITE_API_URL en Vercel (ej: https://sethi-api.up.railway.app)
+// Cliente de la API de Sethi (Conexión Serverless Vercel + Gemini).
 const BASE = (import.meta.env.VITE_API_URL || "") + "/api";
 
 async function pedir(ruta, opciones = {}) {
@@ -14,11 +12,19 @@ async function pedir(ruta, opciones = {}) {
 }
 
 export const api = {
+  salud: () => pedir("/salud"),
   registrar: (datos) => pedir("/registro", { method: "POST", body: JSON.stringify(datos) }),
   obtenerTest: () => pedir("/test"),
   enviarTest: (usuarioId, respuestas) =>
     pedir("/test/resultado", { method: "POST", body: JSON.stringify({ usuarioId, respuestas }) }),
   perfil: (id) => pedir(`/perfil/${id}`),
-  chatear: (usuarioId, mensaje) =>
-    pedir("/chat", { method: "POST", body: JSON.stringify({ usuarioId, mensaje }) }),
+  chatear: (usuario, mensaje, historial) =>
+    pedir("/chat", {
+      method: "POST",
+      body: JSON.stringify(
+        typeof usuario === "object"
+          ? { usuario, mensaje, historial }
+          : { usuarioId: usuario, mensaje, historial }
+      ),
+    }),
 };

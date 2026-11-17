@@ -2,14 +2,20 @@ import React, { useState, useRef, useEffect } from "react";
 import { api } from "../api.js";
 
 export default function Chat({ usuario, volver }) {
-  const [mensajes, setMensajes] = useState(
-    usuario.historial?.length
-      ? usuario.historial
-      : [{
-          role: "assistant",
-          content: `Hola ${usuario.nombre}. Soy Sethi, tu mentor. Conozco tu energía de ${usuario.arquetipo?.primario?.nombre} y tu camino ${usuario.numerologia?.caminoDeVida?.numero}. ¿Qué decisión o inquietud quieres mirar juntos hoy?`,
-        }]
-  );
+  const [mensajes, setMensajes] = useState(() => {
+    if (usuario.historial?.length) return usuario.historial;
+    try {
+      const guardado = window.localStorage.getItem(`sethi_chat_${usuario.id || "default"}`);
+      if (guardado) return JSON.parse(guardado);
+    } catch (e) {}
+    return [
+      {
+        role: "assistant",
+        content: `Hola ${usuario.nombre}. Soy Sethi, tu mentor. Conozco tu energía de ${usuario.arquetipo?.primario?.nombre || "autodescubrimiento"} y tu camino ${usuario.numerologia?.caminoDeVida?.numero || ""}. ¿Qué decisión o inquietud quieres mirar juntos hoy?`,
+      },
+    ];
+  });
+
   const [texto, setTexto] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
@@ -19,18 +25,27 @@ export default function Chat({ usuario, volver }) {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes, cargando]);
 
+  // Guardar historial local
+  useEffect(() => {
+    if (usuario?.id && mensajes.length > 0) {
+      window.localStorage.setItem(`sethi_chat_${usuario.id}`, JSON.stringify(mensajes));
+    }
+  }, [mensajes, usuario]);
+
   const enviar = async () => {
     const mensaje = texto.trim();
     if (!mensaje || cargando) return;
     setError("");
     setTexto("");
-    setMensajes((m) => [...m, { role: "user", content: mensaje }]);
+    const nuevosMensajes = [...mensajes, { role: "user", content: mensaje }];
+    setMensajes(nuevosMensajes);
     setCargando(true);
+
     try {
-      const { respuesta } = await api.chatear(usuario.id, mensaje);
+      const { respuesta } = await api.chatear(usuario, mensaje, mensajes);
       setMensajes((m) => [...m, { role: "assistant", content: respuesta }]);
     } catch (e) {
-      setError(e.message);
+      setError(e.message || "No pudimos conectar con tu mentor.");
     } finally {
       setCargando(false);
     }
@@ -46,7 +61,7 @@ export default function Chat({ usuario, volver }) {
             {m.content}
           </div>
         ))}
-        {cargando && <div className="burbuja mentor">Pensando…</div>}
+        {cargando && <div className="burbuja mentor">Reflexionando con sabiduría cósmica…</div>}
         <div ref={finRef} />
       </div>
 
