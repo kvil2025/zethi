@@ -1,5 +1,5 @@
-import { diaPersonal } from "./lib/numerology.js";
-import { signoSolar } from "./lib/astrology.js";
+import { diaPersonal } from "./_lib/numerology.js";
+import { signoSolar } from "./_lib/astrology.js";
 
 export default function handler(req, res) {
   try {

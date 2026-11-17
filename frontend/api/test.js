@@ -1,4 +1,4 @@
-import { TEST } from "./lib/archetypes.js";
+import { TEST } from "./_lib/archetypes.js";
 
 export default function handler(req, res) {
   const preguntas = TEST.map((p) => ({

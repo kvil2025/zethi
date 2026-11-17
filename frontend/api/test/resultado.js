@@ -1,4 +1,4 @@
-import { calcularArquetipo } from "../lib/archetypes.js";
+import { calcularArquetipo } from "../_lib/archetypes.js";
 
 export default function handler(req, res) {
   if (req.method !== "POST") {

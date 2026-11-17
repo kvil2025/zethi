@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { perfilNumerologico } from "./lib/numerology.js";
-import { cartaNatal } from "./lib/astrology.js";
+import { perfilNumerologico } from "./_lib/numerology.js";
+import { cartaNatal } from "./_lib/astrology.js";
 
 export default function handler(req, res) {
   if (req.method !== "POST") {

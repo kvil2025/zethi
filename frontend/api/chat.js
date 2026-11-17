@@ -1,4 +1,4 @@
-import { chatConMentor } from "./lib/ai.js";
+import { chatConMentor } from "./_lib/ai.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

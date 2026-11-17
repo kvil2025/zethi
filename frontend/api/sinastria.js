@@ -1,4 +1,4 @@
-import { analizarSinastria } from "./lib/sinastria.js";
+import { analizarSinastria } from "./_lib/sinastria.js";
 
 export default function handler(req, res) {
   if (req.method !== "POST") {
