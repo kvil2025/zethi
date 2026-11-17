@@ -17,7 +17,7 @@ export const api = {
   obtenerTest: () => pedir("/test"),
   enviarTest: (usuarioId, respuestas) =>
     pedir("/test/resultado", { method: "POST", body: JSON.stringify({ usuarioId, respuestas }) }),
-  perfil: (id) => pedir(`/perfil/${id}`),
+  perfil: (id) => pedir(id ? `/perfil?id=${encodeURIComponent(id)}` : "/perfil"),
   obtenerClima: (fechaNacimiento, nombre) =>
     pedir(`/clima?fechaNacimiento=${encodeURIComponent(fechaNacimiento)}&nombre=${encodeURIComponent(nombre || "")}`),
   calcularSinastria: (persona1, persona2, tipo) =>
