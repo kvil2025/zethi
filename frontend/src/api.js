@@ -18,13 +18,17 @@ export const api = {
   enviarTest: (usuarioId, respuestas) =>
     pedir("/test/resultado", { method: "POST", body: JSON.stringify({ usuarioId, respuestas }) }),
   perfil: (id) => pedir(`/perfil/${id}`),
-  chatear: (usuario, mensaje, historial) =>
+  obtenerClima: (fechaNacimiento, nombre) =>
+    pedir(`/clima?fechaNacimiento=${encodeURIComponent(fechaNacimiento)}&nombre=${encodeURIComponent(nombre || "")}`),
+  calcularSinastria: (persona1, persona2, tipo) =>
+    pedir("/sinastria", { method: "POST", body: JSON.stringify({ persona1, persona2, tipo }) }),
+  chatear: (usuario, mensaje, historial, sinastria = null) =>
     pedir("/chat", {
       method: "POST",
       body: JSON.stringify(
         typeof usuario === "object"
-          ? { usuario, mensaje, historial }
-          : { usuarioId: usuario, mensaje, historial }
+          ? { usuario, mensaje, historial, sinastria }
+          : { usuarioId: usuario, mensaje, historial, sinastria }
       ),
     }),
 };

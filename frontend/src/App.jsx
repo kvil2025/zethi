@@ -5,10 +5,12 @@ import Perfil from "./views/Perfil.jsx";
 import Chat from "./views/Chat.jsx";
 import { api } from "./api.js";
 
-// Flujo: registro → test → perfil (sello cósmico) → chat con el mentor
+// Flujo: registro → test → perfil (sello cósmico + clima diario + sinastría) → chat con el mentor
 export default function App() {
   const [vista, setVista] = useState("registro");
   const [usuario, setUsuario] = useState(null);
+  const [mensajeChatInicial, setMensajeChatInicial] = useState("");
+  const [sinastriaChatInicial, setSinastriaChatInicial] = useState(null);
 
   // Sesión persistente resiliente: cargamos el perfil completo desde localStorage
   useEffect(() => {
@@ -26,7 +28,6 @@ export default function App() {
       }
     }
 
-    // Fallback: intentar por id si existía
     const id = window.localStorage.getItem("sethi_id");
     if (!id) return;
     api
@@ -59,6 +60,18 @@ export default function App() {
     setVista("perfil");
   };
 
+  const irAlChat = (mensaje = "") => {
+    setMensajeChatInicial(mensaje);
+    setSinastriaChatInicial(null);
+    setVista("chat");
+  };
+
+  const irAlChatConSinastria = (sinastriaData) => {
+    setMensajeChatInicial("");
+    setSinastriaChatInicial(sinastriaData);
+    setVista("chat");
+  };
+
   const cerrarSesion = () => {
     window.localStorage.removeItem("sethi_id");
     window.localStorage.removeItem("sethi_usuario");
@@ -76,9 +89,21 @@ export default function App() {
       {vista === "registro" && <Registro alRegistrar={alRegistrar} />}
       {vista === "test" && <Test usuario={usuario} alTerminar={alTerminarTest} />}
       {vista === "perfil" && (
-        <Perfil usuario={usuario} irAlChat={() => setVista("chat")} cerrarSesion={cerrarSesion} />
+        <Perfil
+          usuario={usuario}
+          irAlChat={irAlChat}
+          irAlChatConSinastria={irAlChatConSinastria}
+          cerrarSesion={cerrarSesion}
+        />
       )}
-      {vista === "chat" && <Chat usuario={usuario} volver={() => setVista("perfil")} />}
+      {vista === "chat" && (
+        <Chat
+          usuario={usuario}
+          volver={() => setVista("perfil")}
+          mensajeInicial={mensajeChatInicial}
+          sinastriaInicial={sinastriaChatInicial}
+        />
+      )}
     </div>
   );
 }

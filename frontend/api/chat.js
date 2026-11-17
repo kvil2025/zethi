@@ -6,13 +6,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { usuario, mensaje, historial } = req.body || {};
+    const { usuario, sinastria, mensaje, historial } = req.body || {};
     if (!mensaje?.trim()) {
       return res.status(400).json({ error: "El mensaje está vacío." });
     }
 
     const respuesta = await chatConMentor({
       perfil: usuario || {},
+      sinastria: sinastria || null,
       historial: historial || [],
       mensaje: mensaje.trim(),
     });
