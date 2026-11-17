@@ -53,16 +53,135 @@ h2 { font-size: 1.7rem; }
 }
 .suave { color: var(--tinta-suave); line-height: 1.65; }
 
-/* ── Marca ── */
+/* ── Marca y Barra Superior con Botón Salir Universal ── */
 .marca {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
 }
-.marca span {
-  font-family: var(--display); font-size: 1.35rem; letter-spacing: 0.18em;
+.marca-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+.marca-logo span {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  color: var(--tinta);
 }
-.marca .estrella { color: var(--oro); font-size: 1rem; }
+.marca-logo .estrella {
+  color: var(--oro);
+  font-size: 1.1rem;
+}
+.marca-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-salir {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--tinta-suave);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-family: var(--cuerpo);
+  font-weight: 400;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.btn-salir:hover {
+  background: rgba(220, 53, 69, 0.18);
+  border-color: rgba(220, 53, 69, 0.5);
+  color: #ff9999;
+}
+.btn-header-nav {
+  background: rgba(125, 107, 199, 0.15);
+  border: 1px solid rgba(125, 107, 199, 0.35);
+  color: #d8d3f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-family: var(--cuerpo);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-header-nav:hover {
+  background: rgba(125, 107, 199, 0.3);
+  color: #ffffff;
+}
+
+/* ── Ilustración y Sello del Arquetipo ── */
+.arquetipo-visual-contenedor {
+  margin: 18px auto 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+}
+.arquetipo-card-marco {
+  position: relative;
+  width: 250px;
+  height: 333px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(201, 162, 75, 0.18);
+  background: #0f0d18;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.arquetipo-card-marco:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 32px rgba(201, 162, 75, 0.28);
+}
+.arquetipo-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.arquetipo-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(11, 10, 18, 0.95) 0%, rgba(11, 10, 18, 0.6) 55%, transparent 100%);
+  padding: 16px 12px 10px;
+  text-align: center;
+}
+.arquetipo-toggle-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.arquetipo-toggle-tab {
+  background: transparent;
+  border: none;
+  color: var(--tinta-suave);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: var(--cuerpo);
+  transition: all 0.2s ease;
+}
+.arquetipo-toggle-tab.activo {
+  background: rgba(201, 162, 75, 0.2);
+  color: var(--oro);
+  font-weight: 500;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+}
 
 /* ── Tarjetas y formularios ── */
 .tarjeta {

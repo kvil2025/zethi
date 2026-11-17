@@ -7,6 +7,91 @@ const GLIFOS = {
   Libra: "♎", Escorpio: "♏", Sagitario: "♐", Capricornio: "♑", Acuario: "♒", Piscis: "♓",
 };
 
+const IMAGENES_ARQUETIPO = {
+  rey: "/arquetipos/rey.jpg",
+  creador: "/arquetipos/creador.jpg",
+};
+
+function IlustracionArquetipo({ usuario, modoVisual, setModoVisual, arqSeleccionado, setArqSeleccionado }) {
+  const p = usuario.arquetipo?.primario;
+  const s = usuario.arquetipo?.secundario;
+  const actual = arqSeleccionado === "secundario" && s ? s : p;
+  const clave = actual?.clave || "rey";
+  const imagenSrc = IMAGENES_ARQUETIPO[clave] || "/arquetipos/rey.jpg";
+
+  return (
+    <div className="arquetipo-visual-contenedor">
+      {modoVisual === "imagen" ? (
+        <div className="arquetipo-card-marco">
+          <img
+            src={imagenSrc}
+            alt={`Ilustración cósmica del arquetipo ${actual?.nombre}`}
+            className="arquetipo-card-img"
+            loading="eager"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/arquetipos/rey.jpg";
+            }}
+          />
+          <div className="arquetipo-card-overlay">
+            <span style={{ color: "#d4af37", fontSize: "0.72rem", letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>
+              {actual === p ? `Arquetipo Primario · ${actual?.porcentaje || 70}%` : `Arquetipo Secundario · ${actual?.porcentaje || 30}%`}
+            </span>
+            <h4 style={{ margin: "3px 0 2px", color: "#f5f3ef", fontSize: "1.15rem", fontFamily: "var(--display)" }}>
+              {actual?.nombre}
+            </h4>
+            <p style={{ margin: 0, fontSize: "0.78rem", color: "#c5c0d8", fontStyle: "italic" }}>
+              "{actual?.lema}"
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="sello-contenedor">
+          <SelloCosmico usuario={usuario} />
+        </div>
+      )}
+
+      {/* Selector de Arquetipo Primario / Secundario */}
+      {s && (
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <button
+            type="button"
+            className={`arquetipo-toggle-tab ${arqSeleccionado === "primario" ? "activo" : ""}`}
+            onClick={() => setArqSeleccionado("primario")}
+          >
+            ✦ Primario: {p?.nombre}
+          </button>
+          <button
+            type="button"
+            className={`arquetipo-toggle-tab ${arqSeleccionado === "secundario" ? "activo" : ""}`}
+            onClick={() => setArqSeleccionado("secundario")}
+          >
+            ✦ Secundario: {s?.nombre}
+          </button>
+        </div>
+      )}
+
+      {/* Selector entre Ilustración y Sello Geométrico */}
+      <div className="arquetipo-toggle-tabs">
+        <button
+          type="button"
+          className={`arquetipo-toggle-tab ${modoVisual === "imagen" ? "activo" : ""}`}
+          onClick={() => setModoVisual("imagen")}
+        >
+          ✦ Ilustración
+        </button>
+        <button
+          type="button"
+          className={`arquetipo-toggle-tab ${modoVisual === "sello" ? "activo" : ""}`}
+          onClick={() => setModoVisual("sello")}
+        >
+          ✦ Sello Sagrado
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SelloCosmico({ usuario }) {
   const primario = usuario.arquetipo?.primario;
   const signo = usuario.carta?.sol?.signo;
@@ -42,6 +127,8 @@ function SelloCosmico({ usuario }) {
 export default function Perfil({ usuario, irAlChat, irAlChatConSinastria, cerrarSesion }) {
   const [mostrarCompartir, setMostrarCompartir] = useState(false);
   const [mostrarSinastria, setMostrarSinastria] = useState(false);
+  const [modoVisual, setModoVisual] = useState("imagen");
+  const [arqSeleccionado, setArqSeleccionado] = useState("primario");
 
   const { arquetipo, carta, numerologia, nombre } = usuario;
   const p = arquetipo?.primario;
@@ -50,15 +137,20 @@ export default function Perfil({ usuario, irAlChat, irAlChatConSinastria, cerrar
 
   return (
     <main className="centrado">
-      <p className="eyebrow">Tu sello cósmico & mapa de autodescubrimiento</p>
+      <p className="eyebrow">Tu arquetipo cósmico & mapa de autodescubrimiento</p>
       <h1>{nombre}, eres {p?.nombre}</h1>
       <p className="suave" style={{ margin: "14px auto 6px", maxWidth: 520 }}>
         "{p?.lema}" — con la energía secundaria de {s?.nombre}, tu don central es {p?.don?.toLowerCase()}.
       </p>
 
-      <div className="sello-contenedor">
-        <SelloCosmico usuario={usuario} />
-      </div>
+      {/* Ilustración Artística Mística del Arquetipo / Sello Sagrado */}
+      <IlustracionArquetipo
+        usuario={usuario}
+        modoVisual={modoVisual}
+        setModoVisual={setModoVisual}
+        arqSeleccionado={arqSeleccionado}
+        setArqSeleccionado={setArqSeleccionado}
+      />
 
       {/* Botones de acción viral e interactiva */}
       <div className="acciones-sello" style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 20 }}>

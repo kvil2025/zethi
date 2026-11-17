@@ -98,8 +98,35 @@ export default function App() {
   return (
     <div className="app">
       <header className="marca">
-        <span className="estrella" aria-hidden="true">✦</span>
-        <span>Sethi</span>
+        <div
+          className="marca-logo"
+          onClick={() => usuario?.arquetipo && setVista("perfil")}
+          style={{ cursor: usuario?.arquetipo ? "pointer" : "default" }}
+          title={usuario?.arquetipo ? "Ir a mi perfil y sello cósmico" : "Sethi"}
+        >
+          <span className="estrella" aria-hidden="true">✦</span>
+          <span>Sethi</span>
+        </div>
+
+        {/* Botón Salir visible en todas las pantallas */}
+        <div className="marca-acciones">
+          {vista === "chat" && (
+            <button
+              className="btn-header-nav"
+              onClick={() => setVista("perfil")}
+              title="Volver a mi perfil y sello"
+            >
+              ← Mi Perfil
+            </button>
+          )}
+          <button
+            className="btn-salir"
+            onClick={cerrarSesion}
+            title="Cerrar sesión o cambiar consultante"
+          >
+            <span>✕</span> Salir
+          </button>
+        </div>
       </header>
 
       {vista === "registro" && <Registro alRegistrar={alRegistrar} />}
