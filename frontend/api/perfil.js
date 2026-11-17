@@ -1,3 +1,7 @@
-export default function handler(req, res) {
-  res.status(404).json({ error: "Perfil no encontrado" });
+import handler from "./perfil/[id].js";
+
+export default function rootPerfilHandler(req, res) {
+  req.query = req.query || {};
+  req.query.id = req.query.id || "cristian";
+  return handler(req, res);
 }

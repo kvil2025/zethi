@@ -12,10 +12,13 @@ export default function App() {
   const [mensajeChatInicial, setMensajeChatInicial] = useState("");
   const [sinastriaChatInicial, setSinastriaChatInicial] = useState(null);
 
-  // Sesión persistente resiliente: cargamos el perfil completo desde localStorage
+  // Sesión persistente resiliente: cargamos el perfil completo desde localStorage o precargamos Cristian por defecto
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const usuarioParam = params.get("usuario");
+
     const guardado = window.localStorage.getItem("sethi_usuario");
-    if (guardado) {
+    if (guardado && !usuarioParam) {
       try {
         const u = JSON.parse(guardado);
         if (u && u.nombre) {
@@ -28,27 +31,39 @@ export default function App() {
       }
     }
 
-    const id = window.localStorage.getItem("sethi_id");
-    if (!id) return;
+    const id = usuarioParam || window.localStorage.getItem("sethi_id");
+    const sesionCerrada = window.sessionStorage.getItem("sethi_sesion_cerrada");
+
+    // Si el usuario cerró sesión en esta pestaña y no especificó parámetro en URL, mantener en registro
+    if (sesionCerrada && !usuarioParam) {
+      return;
+    }
+
+    // Carga directa del perfil (por ID o por defecto "cristian")
+    const targetId = id || "cristian";
     api
-      .perfil(id)
+      .perfil(targetId)
       .then((data) => {
         if (data && data.usuario) {
           setUsuario(data.usuario);
+          window.localStorage.setItem("sethi_id", data.usuario.id);
           window.localStorage.setItem("sethi_usuario", JSON.stringify(data.usuario));
           setVista(data.usuario.arquetipo ? "perfil" : "test");
         } else {
           window.localStorage.removeItem("sethi_id");
         }
       })
-      .catch(() => window.localStorage.removeItem("sethi_id"));
+      .catch(() => {
+        window.localStorage.removeItem("sethi_id");
+      });
   }, []);
 
   const alRegistrar = (u) => {
+    window.sessionStorage.removeItem("sethi_sesion_cerrada");
     window.localStorage.setItem("sethi_id", u.id);
     window.localStorage.setItem("sethi_usuario", JSON.stringify(u));
     setUsuario(u);
-    setVista("test");
+    setVista(u.arquetipo ? "perfil" : "test");
   };
 
   const alTerminarTest = (arquetipo) => {
@@ -75,6 +90,7 @@ export default function App() {
   const cerrarSesion = () => {
     window.localStorage.removeItem("sethi_id");
     window.localStorage.removeItem("sethi_usuario");
+    window.sessionStorage.setItem("sethi_sesion_cerrada", "true");
     setUsuario(null);
     setVista("registro");
   };
