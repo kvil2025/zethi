@@ -31,11 +31,13 @@ export default function App() {
     if (!id) return;
     api
       .perfil(id)
-      .then(({ usuario }) => {
-        if (usuario) {
-          setUsuario(usuario);
-          window.localStorage.setItem("sethi_usuario", JSON.stringify(usuario));
-          setVista(usuario.arquetipo ? "perfil" : "test");
+      .then((data) => {
+        if (data && data.usuario) {
+          setUsuario(data.usuario);
+          window.localStorage.setItem("sethi_usuario", JSON.stringify(data.usuario));
+          setVista(data.usuario.arquetipo ? "perfil" : "test");
+        } else {
+          window.localStorage.removeItem("sethi_id");
         }
       })
       .catch(() => window.localStorage.removeItem("sethi_id"));
